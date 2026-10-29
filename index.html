@@ -285,6 +285,39 @@ header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:spac
     };
   })();
 
+  // Starting plan, used the first time the page opens on a device (nothing saved yet).
+  // Guests are left out on purpose: add them with Edit guest list or Backup → Restore.
+  const SEED = {
+  perBed: 2, perCouch: 2,
+  rooms: [
+    {"id": "r-charlie-s-room", "cabin": "Rowena's Inn (family friendly)", "name": "Charlie's Room", "beds": 1, "couches": 0, "notes": "Queen · cedar view · private en-suite · $318.00 / $228.00"},
+    {"id": "r-pete-s-room", "cabin": "Rowena's Inn (family friendly)", "name": "Pete's Room", "beds": 1, "couches": 0, "notes": "King · river view, shared balcony · private en-suite · $354.00 / $265.00"},
+    {"id": "r-betty-anne-s-room", "cabin": "Rowena's Inn (family friendly)", "name": "Betty-Anne's Room", "beds": 1, "couches": 0, "notes": "King · river view, shared balcony · private en-suite · $354.00 / $265.00"},
+    {"id": "r-ivan-s-suite-bedroom-1", "cabin": "Rowena's Inn (family friendly)", "name": "Ivan's Suite · bedroom 1", "beds": 1, "couches": 0, "notes": "King · river view · shares the suite bathroom · whole suite $560.00 / $483.00"},
+    {"id": "r-ivan-s-suite-bedroom-2", "cabin": "Rowena's Inn (family friendly)", "name": "Ivan's Suite · bedroom 2", "beds": 1, "couches": 0, "notes": "Queen · cedar view · shares the suite bathroom · included in Ivan's Suite rate"},
+    {"id": "r-alder", "cabin": "Woodland Cabin (adults only)", "name": "Alder", "beds": 1, "couches": 0, "notes": "King · 4-piece washroom · dog friendly · back row · river view · $645.00 / $568.00"},
+    {"id": "r-birch", "cabin": "Woodland Cabin (adults only)", "name": "Birch", "beds": 1, "couches": 0, "notes": "King · 4-piece washroom · dog friendly · back row · cedar view · $596.00 / $519.00"},
+    {"id": "r-cedar", "cabin": "Woodland Cabin (adults only)", "name": "Cedar", "beds": 1, "couches": 0, "notes": "King · 4-piece washroom · back row · cedar view · $596.00 / $519.00"},
+    {"id": "r-fir", "cabin": "Woodland Cabin (adults only)", "name": "Fir", "beds": 1, "couches": 0, "notes": "King · 4-piece washroom · front row · river view · $645.00 / $568.00"},
+    {"id": "r-maple", "cabin": "Woodland Cabin (adults only)", "name": "Maple", "beds": 1, "couches": 0, "notes": "King · 4-piece washroom · front row · river view · $645.00 / $568.00"},
+    {"id": "r-oak", "cabin": "Woodland Cabin (adults only)", "name": "Oak", "beds": 1, "couches": 0, "notes": "King · 4-piece washroom · front row · river view · $645.00 / $568.00"},
+    {"id": "r-carol-anne-s", "cabin": "Studio Rustic Cabins (adults only)", "name": "Carol-Anne's", "beds": 1, "couches": 0, "notes": "King · 4-piece washroom · dog friendly · cedar view · $499.00 / $422.00"},
+    {"id": "r-fenn-s", "cabin": "Studio Rustic Cabins (adults only)", "name": "Fenn's", "beds": 1, "couches": 0, "notes": "King · 4-piece washroom · dog friendly · cedar view · $499.00 / $422.00"},
+    {"id": "r-phyllis-s", "cabin": "Studio Rustic Cabins (adults only)", "name": "Phyllis's", "beds": 1, "couches": 0, "notes": "King · 4-piece washroom · river view · $560.00 / $483.00"},
+    {"id": "r-nelson-s", "cabin": "Studio Rustic Cabins (adults only)", "name": "Nelson's", "beds": 1, "couches": 0, "notes": "King · 4-piece washroom · river view · $560.00 / $483.00"},
+    {"id": "r-heron", "cabin": "Luxury Nature Cabins (family friendly)", "name": "Heron", "beds": 1, "couches": 1, "notes": "1 king bedroom + pull-out · 4-piece washroom · river view · $560.00 / $483.00"},
+    {"id": "r-coho", "cabin": "Luxury Nature Cabins (family friendly)", "name": "Coho", "beds": 1, "couches": 1, "notes": "1 king bedroom + pull-out · 4-piece washroom · river view · dog friendly · $560.00 / $483.00"},
+    {"id": "r-eagle", "cabin": "Luxury Nature Cabins (family friendly)", "name": "Eagle", "beds": 2, "couches": 1, "notes": "2 queen bedrooms + pull-out · 3-piece washroom · partial river view · $754.00 / $664.00"},
+    {"id": "r-osprey", "cabin": "Luxury Nature Cabins (family friendly)", "name": "Osprey", "beds": 2, "couches": 1, "notes": "2 queen bedrooms + pull-out · 3-piece washroom · cedar view · $754.00 / $664.00"},
+    {"id": "r-raven", "cabin": "Luxury Nature Cabins (family friendly)", "name": "Raven", "beds": 2, "couches": 1, "notes": "2 queen bedrooms + pull-out · 3-piece washroom · cedar view · dog friendly · $754.00 / $664.00"},
+    {"id": "r-sparrow", "cabin": "Luxury Nature Cabins (family friendly)", "name": "Sparrow", "beds": 2, "couches": 1, "notes": "2 queen bedrooms + pull-out · two 3-piece washrooms · cedar view · $814.00 / $722.00"},
+    {"id": "r-chinook", "cabin": "Luxury Nature Cabins (family friendly)", "name": "Chinook", "beds": 3, "couches": 1, "notes": "3 queen bedrooms + sofa bed · two 3-piece washrooms · river view · pet friendly · $1,352.00 / $1,173.00"},
+    {"id": "r-kermode", "cabin": "Luxury Nature Cabins (family friendly)", "name": "Kermode", "beds": 3, "couches": 1, "notes": "3 queen bedrooms + sofa bed · two 3-piece washrooms · river view · $1,352.00 / $1,173.00"}
+  ],
+  guests: [],
+  assign: {}
+  };
+
   let state = empty();
 
   let ref = null, readOnly = false, dirty = false, writing = false, timer = null;
@@ -697,7 +730,7 @@ header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:spac
       // One-time move of plans saved by the earlier localStorage version.
       try { const c = localStorage.getItem(CACHE_KEY); if (c) { saved = JSON.parse(c); await idb.set(CACHE_KEY, saved); localStorage.removeItem(CACHE_KEY); } } catch (e) {}
     }
-    if (saved && !dirty) { state = normalize(saved); render(); }
+    if (!dirty) { state = normalize(saved || SEED); render(); }
     setStatus("Saved on this device");
     // Ask the browser not to clear this site's data when space runs low.
     try { if (navigator.storage && navigator.storage.persist) await navigator.storage.persist(); } catch (e) {}

@@ -36,6 +36,10 @@ Plans saved by an earlier version of this page (which used local storage) are mo
 - To move a plan to another device or share it with your partner, use **Backup**: copy the text, then on the other device open the page, choose **Backup**, paste the text over what's there and press **Restore**.
 - Clearing your browser's site data erases the plan, so take a backup now and then.
 
+## Starting data
+
+The page comes with the venue's rooms already filled in. The guest list is deliberately not in the code, so the repo can be public without exposing anyone's name. Add guests with **Edit guest list**, or load a saved plan with **Backup → Restore**.
+
 ## How to use it
 
 - **Edit guest list:** paste guests one per line. Add a group name after a comma to keep people together, like `Maya Chen, Chen family`.
