@@ -256,8 +256,36 @@ header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:spac
   const uid = () => Math.random().toString(36).slice(2, 10);
   const clone = (o) => JSON.parse(JSON.stringify(o));
 
+  // IndexedDB key-value store: one "kv" object store holding the whole plan under CACHE_KEY.
+  const idb = (() => {
+    let opening = null;
+    function open(){
+      if (!opening) opening = new Promise((resolve, reject) => {
+        try {
+          const req = indexedDB.open("wedding-cabin-planner", 1);
+          req.onupgradeneeded = () => req.result.createObjectStore("kv");
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => reject(req.error);
+        } catch (e) { reject(e); }
+      });
+      return opening;
+    }
+    async function run(mode, fn){
+      const db = await open();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction("kv", mode);
+        const req = fn(tx.objectStore("kv"));
+        tx.oncomplete = () => resolve(req.result);
+        tx.onerror = tx.onabort = () => reject(tx.error);
+      });
+    }
+    return {
+      get: (k) => run("readonly", s => s.get(k)),
+      set: (k, v) => run("readwrite", s => s.put(v, k))
+    };
+  })();
+
   let state = empty();
-  try { const c = localStorage.getItem(CACHE_KEY); if (c) state = normalize(JSON.parse(c)); } catch (e) {}
 
   let ref = null, readOnly = false, dirty = false, writing = false, timer = null;
   let selected = null; // {kind:"g", id} | {kind:"p", id: partyName}
@@ -275,8 +303,11 @@ header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:spac
   async function flush(){
     if (writing) { timer = setTimeout(flush, 300); return; }
     dirty = false;
-    try { localStorage.setItem(CACHE_KEY, JSON.stringify(state)); } catch (e) {}
-    if (!ref) { setStatus("Saved in this browser only"); return; }
+    if (!ref) {
+      try { await idb.set(CACHE_KEY, clone(state)); setStatus("Saved on this device"); }
+      catch (e) { setStatus("Couldn't save in this browser. Use Backup to keep a copy."); }
+      return;
+    }
     writing = true;
     setStatus("Saving…");
     try {
@@ -657,20 +688,19 @@ header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:spac
 
   // ---- boot ----
   render();
-  setStatus("Connecting…");
+  setStatus("Loading…");
   (async () => {
-    let db = null;
-    try { db = window.claude && window.claude.use ? await window.claude.use("db") : null; } catch (e) { db = null; }
-    if (!db) { setStatus("Saving in this browser only"); return; }
-    ref = db.doc(DOC_PATH);
-    ref.onSnapshot((snap) => {
-      if (dirty || writing) return;
-      state = normalize(snap.exists ? snap.data() : null);
-      try { localStorage.setItem(CACHE_KEY, JSON.stringify(state)); } catch (e) {}
-      if (selected && selected.kind === "g" && !state.guests.some(g => g.id === selected.id)) selected = null;
-      render();
-      if (!snap.metadata.hasPendingWrites) setStatus("Shared plan · changes save automatically");
-    }, (err) => { setStatus("Lost connection to the shared plan. Reload to reconnect."); });
+    let saved = null;
+    try { saved = await idb.get(CACHE_KEY); }
+    catch (e) { setStatus("This browser blocks on-device saving. Use Backup to keep a copy."); return; }
+    if (!saved) {
+      // One-time move of plans saved by the earlier localStorage version.
+      try { const c = localStorage.getItem(CACHE_KEY); if (c) { saved = JSON.parse(c); await idb.set(CACHE_KEY, saved); localStorage.removeItem(CACHE_KEY); } } catch (e) {}
+    }
+    if (saved && !dirty) { state = normalize(saved); render(); }
+    setStatus("Saved on this device");
+    // Ask the browser not to clear this site's data when space runs low.
+    try { if (navigator.storage && navigator.storage.persist) await navigator.storage.persist(); } catch (e) {}
   })();
 })();
 </script>

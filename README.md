@@ -27,7 +27,11 @@ Pages on a **private** repo requires a paid GitHub plan (Pro, Team or Enterprise
 
 ## Where your data is saved
 
-The plan is saved in your browser's local storage, so it's only on the device and browser you used. It isn't shared with anyone else, even on a hosted copy.
+Every change is saved automatically to your browser's IndexedDB storage, so the plan is still there when you close the tab or restart. It's saved only on the device and browser you used, and isn't shared with anyone else, even on a hosted copy.
+
+The page also asks the browser to keep its data even when disk space runs low. Browsers decide on their own whether to agree (Chrome usually does for sites you visit often or bookmark), so keep backups anyway.
+
+Plans saved by an earlier version of this page (which used local storage) are moved into IndexedDB the first time you open the new version.
 
 - To move a plan to another device or share it with your partner, use **Backup**: copy the text, then on the other device open the page, choose **Backup**, paste the text over what's there and press **Restore**.
 - Clearing your browser's site data erases the plan, so take a backup now and then.
